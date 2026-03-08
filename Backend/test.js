@@ -31,19 +31,31 @@ es_padre(X):- progenitor(X,_), hombre(X).
 es_hijo(X):- progenitor(_,X).
 es_hermana(X,Y):- progenitor(Z,X),progenitor(Z,Y),mujer(X),dif(X,Y).
 `;
+// Guarda todas la posibles respuestas en un array
+let respuestas = [];
+
+const obtenerRespuestas = () => {
+    session.answer(ans =>{
+        if (ans === null || ans === false) {
+            console.log("Todas las soluciones capturadas:", respuestas);
+            return;
+        }
+        // Guardamos la respuesta actual
+        respuestas.push(pl.format_answer(ans));
+        
+        // Se llama nuevamente recursivamente (Backtracking)
+        obtenerRespuestas();
+    });
+    
+};
 
 const query = () => { 
+    //hacemos la consulta
     session.query("abuelo(X,Y).", {
     success: function() { 
-        session.answer({
-        success: function(answer) {
-            console.log(session.format_answer(answer)); // formato X = resultado
-        },
-        fail: function() { /* No more answers */ },
-        error: function(err) { /* Uncaught exception */ },
-        limit: function() { /* Limit exceeded */ }
-    });
+        obtenerRespuestas();
     },
+    error: function(err) {console.error("Error en la consulta:",err);}
     });
 };
 
