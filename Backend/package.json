@@ -1,15 +1,13 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Prolog-Tutor",
+  "description": "Prolog_tutor",
   "license": "ISC",
-  "author": "Misael Vanegas",
+  "author": "Misael_Vanegas",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "tau-prolog": "^0.3.4"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   }
 }
