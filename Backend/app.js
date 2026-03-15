@@ -1,7 +1,6 @@
 const { spawn } = require('child_process');
-const { TransformarVariables } = require('./prologParser');
+const { humanizarVariables, parseTraceToTree } = require('./prologParser');
 
-//Inicia el SWI-Prolog
 const swipl = spawn('swipl', ['-q', '--no-tty'], {
     stdio: ['pipe', 'pipe', 'pipe']
 });
@@ -9,11 +8,10 @@ const swipl = spawn('swipl', ['-q', '--no-tty'], {
 let output = '';
 let traceData = '';
 
-//captura la respuesta final
 swipl.stdout.on('data', (data) => {
     output += data.toString();
 });
-// captura el proceso del programa (trace)
+
 swipl.stderr.on('data', (data) => {
     traceData += data.toString();
 });
@@ -21,23 +19,25 @@ swipl.stderr.on('data', (data) => {
 swipl.on('close', (code) => {
     console.log(`Proceso terminado con código: ${code}`);
     
-    // Usamos la función importada para limpiar el rastro
-    const traceLimpio = TransformarVariables(traceData);
+    // 1. Limpiamos las variables (ej: _1234 -> A)
+    const traceLimpio = humanizarVariables(traceData);
     
-    console.log("\n--- TRACE HUMANIZADO ---");
-    console.log(traceLimpio);
+    // 2. Convertimos el texto a JSON jerárquico
+    const arbolJSON = parseTraceToTree(traceLimpio);
+    
+    // Imprimimos el JSON formateado
+    console.log(JSON.stringify(arbolJSON, null, 2));
 });
 
-// Comandos importantes para hacer la consulta
 const comandos = [
-    "leash(-all).", // desactiva el leash para ver todo el proceso de trace
-    "visible(+all).", // hace visibles todos los predicados en el trace
-    "consult('prolog/program.pl').", // carga el programa de prolog
-    "trace.", // activa el trace
-    "abuelo(X, Y).", // realiza la consulta
-    "notrace.", // desactiva el trace para evitar más salidas
-    "halt." // termina la ejecución de SWI-Prolog
+    "leash(-all).",
+    "visible(+all).",
+    "consult('prolog/program.pl').", 
+    "trace.",
+    "abuelo(X, Y).",
+    "notrace.",
+    "halt."
 ];
 
-swipl.stdin.write(comandos.join('\n')); // enviar los comandos a SWI-Prolog  
-swipl.stdin.end(); // indica que no se enviarán más datos a la entrada estándar
+swipl.stdin.write(comandos.join('\n'));   
+swipl.stdin.end();
