@@ -68,8 +68,8 @@ function parseTraceToTree(traceText) {
             }
         } else if (port === 'Fail') {
             // Fallo: Lo marcamos de rojo
-            const node = stack.find(n => n.level === level);
-            if (node) {
+        const node = stack.find(n => n.level === level);
+            if (node && node.status !== 'success') {
                 node.status = 'fail';
             }
         }
